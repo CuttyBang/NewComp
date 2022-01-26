@@ -1,30 +1,31 @@
 import { context } from './Context.js'
 
-const createMeter = (control) => {
+const createMeter = (supplier, control) => {
   const fftSize = 2048;
   const analyser = context.createAnalyser();
   analyser.fftSize = fftSize;
   const sampleBuffer = new Float32Array(analyser.fftSize);
   const input = context.createGain();
   const output = context.createGain();
-  let peakPowerDb = null,
-      peakInstantaneousPowerDecibels = null,
-      avgPowerDecibels = null,
+  let peakInstantaneousPowerDecibels = null,
       peakInstantaneousPower = null,
-      instantPower = null,
-      averagePower = null;
+      peakPowerDb = null,
+      avgPowerDecibels = null,
+      averagePower = null,
+      sumOfSquares = null;
 
+  supplier.connect(input);
   input.connect(analyser);
 
   function loop() {
     // Vary power of input to analyser. Linear in amplitude, so
     // nonlinear in dB power.
-    input.gain.value = 0.9 * (1 + Math.sin(Date.now() / 4e2));
+    // input.gain.value = 0.9 * (1 + Math.sin(Date.now() / 4e2));
 
     analyser.getFloatTimeDomainData(sampleBuffer);
 
     // Compute average power over the interval.
-    let sumOfSquares = 0;
+    sumOfSquares = 0;
     for (let i = 0; i < sampleBuffer.length; i++) {
       sumOfSquares += sampleBuffer[i] ** 2;
     }
@@ -38,29 +39,19 @@ const createMeter = (control) => {
 
     }
 
-    peakInstantaneousPowerDecibels = 10 * Math.log10(peakInstantaneousPower);;
-
-
-     if (peakInstantaneousPowerDecibels >= -10) {
-       let abso = Math.abs(peakInstantaneousPowerDecibels);
-       let norm = 10 - abso;
-       let usable = norm / 10;
-       peakPowerDb = usable.toFixed(2)
-       control.offset.value = peakPowerDb;
-       console.log((peakPowerDb * 1.25).toFixed(2));
-     }
+  peakPowerDb = 10 * Math.log10(peakInstantaneousPower);;
+  control.value = peakPowerDb;
 
     // Display value.
     // displayNumber('avg', avgPowerDecibels);
     // displayNumber('inst', peakInstantaneousPowerDecibels);
     requestAnimationFrame(loop);
 
-    return{peakPowerDb}
   }
 
   loop();
 
-  return {input, output, analyser, peakPowerDb, loop}
+  return { analyser, peakPowerDb, loop }
 }
 
-export { createMeter }
+export {createMeter}

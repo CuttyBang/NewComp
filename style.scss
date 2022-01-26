@@ -47,25 +47,35 @@
   }
 }
 
-.plate_wrapper > * {
-  transform: scale(0.7);
-}
+// .plug > * {
+//   transform: scale(0.7);
+// }
 
-.plate_wrapper {
-  width: 330px;
+.plate {
+  width: 252px;
   height: 870px;
   margin: 0 auto;
-  .plug {
+  .plate_face {
     width: 252px;
     height: 870px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: url("images/sky_blue_3.png");
+    background: url("images/sky_blue2.png");
   }
 }
 
-.plug_face {
+.plate_face {
   width: 90%;
-  height: 90%;
+  height: 80%;
+}
+
+.left_section {
+  width: 80%;
+  height: 80%;
+}
+
+.right_section {
+  width: 20%;
+  height: 80%;
 }
