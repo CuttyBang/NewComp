@@ -15,6 +15,7 @@ const thresholdKnob = document.getElementById('threshold')
 const ratioKnob = document.getElementById('ratio')
 const attackKnob = document.getElementById('attack')
 const releaseKnob = document.getElementById('release')
+const makeupKnob = document.getElementById('makeup')
 
 const sourceGain = context.createGain();
 sourceGain.gain.value = 0.8;
@@ -30,7 +31,7 @@ outputGain.gain.value = 1;
 const dynamics = Dynamics();
 createMeter(wetGain, inMeter);
 
-
+createMeter(outputGain, outMeter);
 
 
 
@@ -79,4 +80,8 @@ attackKnob.addEventListener('input', () => {
 
 releaseKnob.addEventListener('input', () => {
   dynamics.release(releaseKnob.value);
+});
+
+makeupKnob.addEventListener('input', () => {
+  dynamics.makeup(makeupKnob.value);
 });

@@ -2,14 +2,14 @@ import { context } from './Context.js'
 
 export default function Dynamics(th, kn, rt, at, rl) {
 
-  let autoMakeup = (comp) => {
+  let makeupAuto = (comp) => {
     let magicCoefficient = 3, // raise me if the output is too hot
         c = comp;
     return -(c.threshold.value - c.threshold.value / c.ratio.value) / magicCoefficient;
   }
 
   const dynamics = context.createDynamicsCompressor();
-  const auto = autoMakeup(dynamics);
+  // const auto = autoMakeup(dynamics);
   const input = context.createGain();
   const output = context.createGain();
   const makeupGain = context.createGain();
@@ -63,44 +63,42 @@ export default function Dynamics(th, kn, rt, at, rl) {
   // let makeup = makeupGain.gain;
 
   input.gain.value = 0.8;
-  makeup.value = autoMakeup(dynamics);
-  output.gain.value = 1
+  output.gain.value = 1;
+  makeupGain.gain.value = 0.5;
 
 
   function threshold(amt) {
-    let thr = dynamics.threshold;
-    thr.exponentialRampToValueAtTime(amt, 0.25);
-    return thr.value;
+    dynamics.threshold.exponentialRampToValueAtTime(amt, 0.25);
+    return dynamics.threshold.value;
   }
 
   function knee(amt) {
-    let kne = dynamics.knee;
-    kne.exponentialRampToValueAtTime(amt, 0.25);
-    return kne.value;
+    dynamics.knee.exponentialRampToValueAtTime(amt, 0.25);
+    return dynamics.knee.value;
   }
 
   function ratio(amt) {
-    let rto = dynamics.knee;
-    rto.exponentialRampToValueAtTime(amt, 0.25);
-    return rto.value;
+    dynamics.ratio.exponentialRampToValueAtTime(amt, 0.25);
+    return dynamics.ratio.value;
   }
 
   function attack(amt) {
-    let att = dynamics.attack;
-    att.exponentialRampToValueAtTime(amt, 0.25);
-    return att.value;
+    dynamics.attack.exponentialRampToValueAtTime(amt, 0.25);
+    return dynamics.attack.value;
   }
 
   function release(amt) {
-    let rel = dynamics.attack;
-    rel.exponentialRampToValueAtTime(amt, 0.25);
-    return rel.value;
+    dynamics.release.exponentialRampToValueAtTime(amt, 0.25);
+    return dynamics.release.value;
   }
 
   function makeup(amt) {
-    let mku = dynamics.knee;
-    mku.exponentialRampToValueAtTime(amt, 0.25);
-    return mku.value;
+     makeupGain.gain.exponentialRampToValueAtTime(amt, 0.25);
+    return makeupGain.gain.value;
+  }
+
+  function autoMakeup() {
+   makeupGain.gain.value = makeupAuto(dynamics);
   }
 
   let to = (node) => {
@@ -115,5 +113,5 @@ export default function Dynamics(th, kn, rt, at, rl) {
 
 
 
-  return {input, output, makeup, attack, knee, ratio, release, threshold, to};
+  return {input, output, autoMakeup, makeup, attack, knee, ratio, release, threshold, to};
 };
